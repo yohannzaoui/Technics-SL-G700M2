@@ -130,10 +130,10 @@
         }
         .status-display.visible { opacity: 1 !important; }
 
-        .mute-indicator {
+        /* Style partagé pour MUTE et PAUSE */
+        .ui-indicator {
             position: absolute;
             top: 20px;
-            right: 30px;
             color: var(--gold);
             font-family: 'Inter', sans-serif;
             font-size: 14px;
@@ -145,6 +145,8 @@
             border: 1px solid var(--gold);
             padding: 2px 8px;
         }
+        #muteIndicator { right: 30px; }
+        #pauseIndicator { right: 110px; } /* Décalé pour ne pas chevaucher MUTE */
 
         .tone-menu {
             position: absolute;
@@ -215,6 +217,8 @@
         .artist { font-size: 20px; color: var(--gold); margin: 8px 0; font-weight: 300; text-transform: uppercase; letter-spacing: 4px; }
         .album-name { color: #555; font-size: 18px; letter-spacing: 2px; font-weight: 300; margin-bottom: 10px; }
         
+        .standby-logo { width: 200px; margin-top: 20px; opacity: 0.6; transition: opacity 0.5s ease; }
+
         .time-counter, .track-counter {
             color: var(--active-text); font-family: 'Courier New', Courier, monospace;
             font-size: 22px; letter-spacing: 2px; font-weight: 400; margin-top: 5px;
@@ -236,6 +240,7 @@
             display: flex; flex-direction: column; align-items: center;
             transition: all 0.3s ease; width: 70px; opacity: var(--ui-off-opacity);
             position: relative;
+            user-select: none;
         }
         
         .control-btn:hover { color: var(--gold) !important; opacity: 1 !important; }
@@ -245,17 +250,9 @@
         .control-btn label { font-size: 9px; font-weight: 200; letter-spacing: 2.5px; text-transform: uppercase; pointer-events: none; }
         
         .repeat-badge {
-            position: absolute; 
-            top: -12px; 
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10px; 
-            font-weight: 700;
-            display: none; 
-            color: var(--gold); 
-            letter-spacing: 1px;
-            background: transparent;
-            pointer-events: none;
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; font-weight: 700; display: none; color: var(--gold); 
+            letter-spacing: 1px; background: transparent; pointer-events: none;
         }
 
         .ui-on { opacity: 1 !important; color: var(--active-text) !important; }
@@ -282,7 +279,8 @@
 
     <div class="screen-zone">
         <div class="screen" id="mainScreen">
-            <div id="muteIndicator" class="mute-indicator">MUTE</div>
+            <div id="muteIndicator" class="ui-indicator">MUTE</div>
+            <div id="pauseIndicator" class="ui-indicator">PAUSE</div>
             <div id="statusDisplay" class="status-display">VOL 02%</div>
 
             <div id="toneMenu" class="tone-menu">
@@ -307,6 +305,7 @@
                         <h1 id="trackTitle" class="title">SYSTEM STANDBY</h1>
                         <div id="trackArtist" class="artist">NO SOURCE</div>
                         <div id="trackAlbum" class="album-name">LOAD MEDIA TO START</div>
+                        <img src="Technics-Logo-org.png" alt="Technics Logo" id="standbyLogo" class="standby-logo">
                         <div id="timeCounter" class="time-counter">00:00 / 00:00</div>
                         <div id="trackCounter" class="track-counter" onclick="openPlaylistView()">TRACK 0 / 0</div>
                     </div>
@@ -323,7 +322,7 @@
                     <div style="margin-top:30px; color:#aaa; font-size:14px; letter-spacing:1px;">
                         LANGUAGE: <span style="color:var(--gold)">ENGLISH</span><br><br>
                         THEME: <span style="color:var(--gold)">DARK MODE</span><br><br>
-                        SYSTEM: <span style="color:var(--gold)">v4.6 FINAL</span>
+                        SYSTEM: <span style="color:var(--gold)">v5.1 FINAL</span>
                     </div>
                     <button class="back-btn-ui" onclick="hideOverlays()">BACK</button>
                 </div>
@@ -343,9 +342,25 @@
                     <label>REPEAT</label>
                 </button>
 
-                <button class="control-btn media-ctrl" onmouseover="handleVolHover(true)" onmouseout="handleVolHover(false)" onclick="adjustVolume(-0.02)"><i class="fa-solid fa-volume-low"></i><label>VOL-</label></button>
+                <button class="control-btn media-ctrl" 
+                        onmouseover="handleVolHover(true)" 
+                        onmouseout="handleVolHover(false)" 
+                        onmousedown="startVolumeChange(-0.01)" 
+                        onmouseup="stopVolumeChange()" 
+                        onmouseleave="stopVolumeChange()">
+                    <i class="fa-solid fa-volume-low"></i><label>VOL-</label>
+                </button>
+                
                 <button class="control-btn media-ctrl" id="muteBtn" onclick="toggleMute()"><i class="fa-solid fa-volume-xmark"></i><label>MUTE</label></button>
-                <button class="control-btn media-ctrl" onmouseover="handleVolHover(true)" onmouseout="handleVolHover(false)" onclick="adjustVolume(0.02)"><i class="fa-solid fa-volume-high"></i><label>VOL+</label></button>
+                
+                <button class="control-btn media-ctrl" 
+                        onmouseover="handleVolHover(true)" 
+                        onmouseout="handleVolHover(false)" 
+                        onmousedown="startVolumeChange(0.01)" 
+                        onmouseup="stopVolumeChange()" 
+                        onmouseleave="stopVolumeChange()">
+                    <i class="fa-solid fa-volume-high"></i><label>VOL+</label>
+                </button>
                 
                 <button class="control-btn media-ctrl" id="toneBtn" onclick="toggleTone()"><i class="fa-solid fa-sliders"></i><label>TONE</label></button>
                 <button class="control-btn media-ctrl" id="settingsBtn" onclick="openSettingsView()"><i class="fa-solid fa-gear"></i><label>SETTINGS</label></button>
@@ -365,13 +380,17 @@
     const fileInput = document.getElementById('fileInput');
     const statusDisp = document.getElementById('statusDisplay');
     const muteInd = document.getElementById('muteIndicator');
+    const pauseInd = document.getElementById('pauseIndicator');
     const toneMenu = document.getElementById('toneMenu');
     const progressContainer = document.getElementById('progressContainer');
     const progressBar = document.getElementById('progressBar');
+    const standbyLogo = document.getElementById('standbyLogo');
     
     let audioCtx, source, bassFilter, trebleFilter;
     let bassGain = 0;
     let trebleGain = 0;
+    let volInterval = null;
+    let isToneActive = false;
 
     function initAudioContext() {
         if (!audioCtx || audioCtx.state === 'closed') {
@@ -392,10 +411,33 @@
     let playlist = [];
     let currentIndex = 0;
     let isShuffle = false;
-    let isToneActive = false;
     let repeatMode = 0; 
 
+    function toggleTone() { 
+        isToneActive = !isToneActive; 
+        initAudioContext();
+        document.getElementById('toneBtn').classList.toggle('active', isToneActive);
+        toneMenu.classList.toggle('active', isToneActive);
+    }
+
     audio.volume = 0.02;
+
+    function startVolumeChange(amount) {
+        adjustVolume(amount);
+        volInterval = setInterval(() => { adjustVolume(amount); }, 50);
+    }
+
+    function stopVolumeChange() {
+        if (volInterval) { clearInterval(volInterval); volInterval = null; }
+    }
+
+    function adjustVolume(val) { 
+        audio.volume = Math.min(1, Math.max(0, audio.volume + val)); 
+        if (audio.volume > 0 && audio.muted) toggleMute(); 
+        const percentage = Math.round(audio.volume * 100);
+        statusDisp.innerText = `VOL ${percentage.toString().padStart(2, '0')}%`;
+        statusDisp.classList.add('visible');
+    }
 
     progressContainer.addEventListener('click', (e) => {
         if (!audio.src) return;
@@ -403,13 +445,6 @@
         const pos = (e.clientX - rect.left) / rect.width;
         audio.currentTime = pos * audio.duration;
     });
-
-    function toggleTone() { 
-        isToneActive = !isToneActive; 
-        document.getElementById('toneBtn').classList.toggle('active', isToneActive);
-        toneMenu.classList.toggle('active', isToneActive);
-        initAudioContext();
-    }
 
     function adjustTone(type, val) {
         initAudioContext();
@@ -447,15 +482,8 @@
             statusDisp.classList.add('visible');
         } else {
             delete statusDisp.dataset.persistent;
-            statusDisp.classList.remove('visible');
+            if (!volInterval) statusDisp.classList.remove('visible');
         }
-    }
-
-    function adjustVolume(val) { 
-        audio.volume = Math.min(1, Math.max(0, audio.volume + val)); 
-        if (audio.volume > 0 && audio.muted) toggleMute(); 
-        const percentage = Math.round(audio.volume * 100);
-        statusDisp.innerText = `VOL ${percentage.toString().padStart(2, '0')}%`;
     }
 
     function toggleMute() { 
@@ -470,34 +498,28 @@
         const badge = document.getElementById('repeatBadge');
         btn.classList.remove('active');
         badge.style.display = "none";
-        if (repeatMode === 1) { 
-            btn.classList.add('active'); badge.innerText = "1"; badge.style.display = "block"; 
-        } else if (repeatMode === 2) { 
-            btn.classList.add('active'); badge.innerText = "ALL"; badge.style.display = "block"; 
-        }
+        if (repeatMode === 1) { btn.classList.add('active'); badge.innerText = "1"; badge.style.display = "block"; }
+        else if (repeatMode === 2) { btn.classList.add('active'); badge.innerText = "ALL"; badge.style.display = "block"; }
     }
 
     fileInput.addEventListener('change', (e) => {
         if (e.target.files.length === 0) return;
         const startPlay = (playlist.length === 0);
         playlist = [...playlist, ...Array.from(e.target.files)];
-        
         document.querySelectorAll('.media-ctrl').forEach(btn => btn.classList.add('ui-on'));
         document.getElementById('albumArt').classList.add('ui-on');
         document.getElementById('timeCounter').classList.add('visible');
         document.getElementById('trackCounter').classList.add('visible');
-        
-        if (startPlay) loadTrack(0, true);
+        if (startPlay) { standbyLogo.style.display = "none"; loadTrack(0, true); }
     });
 
     function loadTrack(index, autoPlay = true) {
         if (playlist.length === 0) return;
         currentIndex = index;
         const file = playlist[index];
-        
+        standbyLogo.style.display = "none";
         document.getElementById('format').innerText = file.name.split('.').pop().toUpperCase();
         document.getElementById('trackCounter').innerText = `TRACK ${index + 1} / ${playlist.length}`;
-        
         jsmediatags.read(file, {
             onSuccess: (tag) => {
                 const t = tag.tags;
@@ -514,12 +536,8 @@
                 } else { art.style.backgroundImage = "none"; art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>'; }
             }
         });
-
         audio.src = URL.createObjectURL(file);
-        if (autoPlay) {
-            initAudioContext();
-            audio.play().then(() => updatePlayBtn()).catch(e => console.log("Playback failed:", e));
-        }
+        if (autoPlay) { initAudioContext(); audio.play().then(() => updatePlayBtn()); }
     }
 
     function togglePlay() { 
@@ -534,6 +552,8 @@
         const btn = document.querySelector('#playBtn');
         btn.querySelector('i').className = audio.paused ? "fa-solid fa-play" : "fa-solid fa-pause";
         btn.querySelector('label').innerText = audio.paused ? "PLAY" : "PAUSE";
+        // GESTION DE L'INDICATEUR PAUSE
+        pauseInd.style.display = (audio.paused && audio.src) ? "block" : "none";
     }
 
     audio.addEventListener('timeupdate', () => {
@@ -542,14 +562,9 @@
     });
 
     audio.addEventListener('ended', () => {
-        if (repeatMode === 1) {
-            audio.currentTime = 0;
-            audio.play();
-        } else if (repeatMode === 2 || currentIndex < playlist.length - 1) {
-            playNextManual();
-        } else {
-            stopAudio();
-        }
+        if (repeatMode === 1) { audio.currentTime = 0; audio.play(); }
+        else if (repeatMode === 2 || currentIndex < playlist.length - 1) { playNextManual(); }
+        else { stopAudio(); }
     });
 
     function formatTime(s) { if (isNaN(s)) return "00:00"; const m = Math.floor(s/60); const sec = Math.floor(s%60); return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; }
@@ -565,13 +580,13 @@
         });
         document.getElementById('playerView').style.display = "none";
         document.getElementById('playlistView').classList.add('active');
-        toneMenu.classList.remove('active');
+        if (isToneActive) toggleTone();
     }
 
     function openSettingsView() {
         document.getElementById('playerView').style.display = "none";
         document.getElementById('settingsView').classList.add('active');
-        toneMenu.classList.remove('active');
+        if (isToneActive) toggleTone();
     }
 
     function hideOverlays() {
@@ -579,16 +594,19 @@
         document.getElementById('playerView').style.display = "flex";
     }
 
-    function stopAudio() { audio.pause(); audio.currentTime = 0; updatePlayBtn(); }
+    function stopAudio() { 
+        audio.pause(); 
+        audio.currentTime = 0; 
+        updatePlayBtn(); 
+        pauseInd.style.display = "none"; // Ne pas afficher PAUSE si on a fait STOP
+    }
     
     function playNextManual() { 
         if (isShuffle && playlist.length > 1) {
             let nextIndex = currentIndex;
             while(nextIndex === currentIndex) nextIndex = Math.floor(Math.random() * playlist.length);
             currentIndex = nextIndex;
-        } else {
-            currentIndex = (currentIndex + 1) % playlist.length; 
-        }
+        } else { currentIndex = (currentIndex + 1) % playlist.length; }
         loadTrack(currentIndex, true); 
     }
     
@@ -596,22 +614,12 @@
     function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffleBtn').classList.toggle('active', isShuffle); }
 
     function resetApplication() {
-        // Arrêt complet et suppression de la source
-        audio.pause();
-        audio.removeAttribute('src');
-        audio.load();
-        
-        playlist = [];
-        currentIndex = 0;
-        bassGain = 0;
-        trebleGain = 0;
-        
+        audio.pause(); audio.removeAttribute('src'); audio.load();
+        playlist = []; currentIndex = 0; bassGain = 0; trebleGain = 0;
         if (bassFilter) bassFilter.gain.value = 0;
         if (trebleFilter) trebleFilter.gain.value = 0;
-        
         hideOverlays();
-        fileInput.value = ""; // Reset de l'input file
-        
+        fileInput.value = "";
         document.querySelectorAll('.media-ctrl').forEach(btn => btn.classList.remove('ui-on', 'active'));
         document.getElementById('trackTitle').innerText = "SYSTEM STANDBY";
         document.getElementById('trackArtist').innerText = "NO SOURCE";
@@ -620,17 +628,14 @@
         document.getElementById('timeCounter').classList.remove('visible');
         document.getElementById('trackCounter').classList.remove('visible');
         document.getElementById('repeatBadge').style.display = "none";
-        toneMenu.classList.remove('active');
         muteInd.style.display = "none";
-        isToneActive = false;
-        repeatMode = 0;
-        isShuffle = false;
-        
+        pauseInd.style.display = "none";
+        isToneActive = false; toneMenu.classList.remove('active');
+        repeatMode = 0; isShuffle = false;
+        standbyLogo.style.display = "block";
         const art = document.getElementById('albumArt');
-        art.style.backgroundImage = "none"; 
-        art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>';
+        art.style.backgroundImage = "none"; art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>';
         art.classList.remove('ui-on');
-        
         progressBar.style.width = '0%';
         updatePlayBtn();
     }
