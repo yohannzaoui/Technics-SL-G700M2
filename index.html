@@ -220,11 +220,26 @@
             background: none; border: none; color: var(--dim-text); cursor: pointer;
             display: flex; flex-direction: column; align-items: center;
             transition: all 0.4s ease; width: 70px; opacity: var(--ui-off-opacity);
+            position: relative;
         }
         .control-btn.btn-load { opacity: 1 !important; color: var(--active-text) !important; }
         .control-btn i { font-size: 18px; margin-bottom: 10px; }
         .control-btn label { font-size: 9px; font-weight: 200; letter-spacing: 2.5px; text-transform: uppercase; }
         
+        /* Correction du positionnement du badge pour éviter le chevauchement */
+        .repeat-badge {
+            position: absolute; 
+            top: -8px;      /* Plus haut */
+            right: 8px;     /* Plus à droite */
+            font-size: 8px; /* Légèrement plus petit */
+            font-weight: 900;
+            display: none; 
+            color: var(--gold); 
+            letter-spacing: 0.5px;
+            background: var(--display-bg); /* Fond noir pour masquer les lignes de l'icône si besoin */
+            padding: 0 2px;
+        }
+
         .ui-on { opacity: 1 !important; color: var(--active-text) !important; }
         .control-btn.active { color: var(--gold) !important; }
 
@@ -232,10 +247,6 @@
         .progress-bar { height: 100%; background: var(--gold); width: 0%; transition: width 0.1s linear; }
 
         #fileInput { display: none; }
-
-        .playlist-container::-webkit-scrollbar { width: 4px; }
-        .playlist-container::-webkit-scrollbar-track { background: #000; }
-        .playlist-container::-webkit-scrollbar-thumb { background: var(--gold); }
     </style>
 </head>
 <body>
@@ -279,7 +290,7 @@
                     <div style="margin-top:30px; color:#aaa; font-size:14px; letter-spacing:1px;">
                         LANGUAGE: <span style="color:var(--gold)">ENGLISH</span><br><br>
                         THEME: <span style="color:var(--gold)">DARK MODE</span><br><br>
-                        SYSTEM: <span style="color:var(--gold)">v2.5 FINAL</span>
+                        SYSTEM: <span style="color:var(--gold)">v3.0 FINAL</span>
                     </div>
                     <button class="back-btn-ui" onclick="hideOverlays()">BACK</button>
                 </div>
@@ -289,10 +300,16 @@
                 <button class="control-btn btn-load" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-eject"></i><label>LOAD</label></button>
                 <button class="control-btn media-ctrl" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-play"></i><label>PLAY</label></button>
                 <button class="control-btn media-ctrl" onclick="playPrevious()"><i class="fa-solid fa-backward-step"></i><label>PREV</label></button>
-                <button class="control-btn media-ctrl" onclick="playNext()"><i class="fa-solid fa-forward-step"></i><label>NEXT</label></button>
-                <button class="control-btn media-ctrl" onclick="resetApplication()"><i class="fa-solid fa-stop"></i><label>STOP</label></button>
+                <button class="control-btn media-ctrl" onclick="playNextManual()"><i class="fa-solid fa-forward-step"></i><label>NEXT</label></button>
+                <button class="control-btn media-ctrl" onclick="stopAudio()"><i class="fa-solid fa-stop"></i><label>STOP</label></button>
                 <button class="control-btn media-ctrl" id="shuffleBtn" onclick="toggleShuffle()"><i class="fa-solid fa-shuffle"></i><label>SHUFFLE</label></button>
-                <button class="control-btn media-ctrl" id="repeatBtn" onclick="toggleRepeat()"><i class="fa-solid fa-repeat"></i><label>REPEAT</label></button>
+                
+                <button class="control-btn media-ctrl" id="repeatBtn" onclick="cycleRepeat()">
+                    <span id="repeatBadge" class="repeat-badge">1</span>
+                    <i class="fa-solid fa-repeat"></i>
+                    <label>REPEAT</label>
+                </button>
+
                 <button class="control-btn media-ctrl" onmouseover="handleVolHover(true)" onmouseout="handleVolHover(false)" onclick="adjustVolume(-0.01)"><i class="fa-solid fa-volume-low"></i><label>VOL-</label></button>
                 <button class="control-btn media-ctrl" id="muteBtn" onclick="toggleMute()"><i class="fa-solid fa-volume-xmark"></i><label>MUTE</label></button>
                 <button class="control-btn media-ctrl" onmouseover="handleVolHover(true)" onmouseout="handleVolHover(false)" onclick="adjustVolume(0.01)"><i class="fa-solid fa-volume-high"></i><label>VOL+</label></button>
@@ -317,9 +334,29 @@
     let playlist = [];
     let currentIndex = 0;
     let isShuffle = false;
-    let isRepeat = false;
+    let repeatMode = 0; // 0: OFF, 1: SINGLE, 2: ALL
 
     audio.volume = 0.02;
+
+    // --- Media Session API Configuration ---
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', () => { audio.play(); updatePlayBtn(); });
+        navigator.mediaSession.setActionHandler('pause', () => { audio.pause(); updatePlayBtn(); });
+        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevious());
+        navigator.mediaSession.setActionHandler('nexttrack', () => playNextManual());
+        navigator.mediaSession.setActionHandler('stop', () => stopAudio());
+    }
+
+    function updateMediaSession(title, artist, album, artwork) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: artist,
+                album: album,
+                artwork: artwork ? [{ src: artwork, sizes: '512x512', type: 'image/png' }] : []
+            });
+        }
+    }
 
     function openPlaylistView() {
         const container = document.getElementById('playlistContainer');
@@ -328,7 +365,7 @@
             const item = document.createElement('div');
             item.className = `playlist-item ${index === currentIndex ? 'playing' : ''}`;
             item.innerHTML = `<span>${index + 1}. ${file.name}</span>`;
-            item.onclick = () => { currentIndex = index; loadTrack(index); hideOverlays(); };
+            item.onclick = () => { currentIndex = index; loadTrack(index, true); hideOverlays(); };
             container.appendChild(item);
         });
         document.getElementById('playerView').style.display = "none";
@@ -355,56 +392,114 @@
         document.getElementById('albumArt').classList.add('ui-on');
         document.getElementById('timeCounter').classList.add('visible');
         document.getElementById('trackCounter').classList.add('visible');
-        if (audio.paused && !audio.src) loadTrack(currentIndex);
+        if (audio.paused && !audio.src) loadTrack(currentIndex, true);
     });
 
-    function loadTrack(index) {
+    function loadTrack(index, autoPlay = true) {
         if (playlist.length === 0) return;
         const file = playlist[index];
         document.getElementById('format').innerText = file.name.split('.').pop().toUpperCase();
         document.getElementById('trackCounter').innerText = `TRACK ${index + 1} / ${playlist.length}`;
+        
         jsmediatags.read(file, {
             onSuccess: function(tag) {
                 const tags = tag.tags;
-                document.getElementById('trackTitle').innerText = (tags.title || file.name.replace(/\.[^/.]+$/, "")).toUpperCase();
-                document.getElementById('trackArtist').innerText = tags.artist || "UNKNOWN ARTIST";
-                document.getElementById('trackAlbum').innerText = tags.album || "UNKNOWN ALBUM";
+                const title = (tags.title || file.name.replace(/\.[^/.]+$/, "")).toUpperCase();
+                const artist = tags.artist || "UNKNOWN ARTIST";
+                const album = tags.album || "UNKNOWN ALBUM";
+                
+                document.getElementById('trackTitle').innerText = title;
+                document.getElementById('trackArtist').innerText = artist;
+                document.getElementById('trackAlbum').innerText = album;
+                
                 const art = document.getElementById('albumArt');
+                let artworkUrl = null;
+
                 if (tags.picture) {
                     const { data, format } = tags.picture;
                     let b64 = "";
                     for (let i = 0; i < data.length; i++) b64 += String.fromCharCode(data[i]);
-                    art.style.backgroundImage = `url(data:${format};base64,${window.btoa(b64)})`;
+                    artworkUrl = `data:${format};base64,${window.btoa(b64)}`;
+                    art.style.backgroundImage = `url(${artworkUrl})`;
                     art.innerHTML = "";
-                } else { art.style.backgroundImage = "none"; art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>'; }
+                } else { 
+                    art.style.backgroundImage = "none"; 
+                    art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>'; 
+                }
+                
+                updateMediaSession(title, artist, album, artworkUrl);
             }
         });
+        
         audio.src = URL.createObjectURL(file);
-        audio.play().then(() => updatePlayBtn());
+        if (autoPlay) audio.play().then(() => updatePlayBtn());
+        else updatePlayBtn();
     }
 
-    function playNext() {
+    audio.onended = () => {
+        if (repeatMode === 1) { 
+            audio.play();
+        } else if (isShuffle) {
+            playNextManual();
+        } else {
+            if (currentIndex < playlist.length - 1) {
+                playNextManual();
+            } else {
+                if (repeatMode === 2) { 
+                    currentIndex = 0;
+                    loadTrack(0, true);
+                } else {
+                    stopAudio();
+                    currentIndex = 0;
+                    loadTrack(0, false); 
+                }
+            }
+        }
+    };
+
+    function playNextManual() {
         if (playlist.length === 0) return;
         currentIndex = isShuffle ? Math.floor(Math.random() * playlist.length) : (currentIndex + 1) % playlist.length;
-        loadTrack(currentIndex);
+        loadTrack(currentIndex, true);
     }
 
     function playPrevious() {
         if (playlist.length === 0) return;
         currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-        loadTrack(currentIndex);
+        loadTrack(currentIndex, true);
     }
 
-    audio.onended = () => isRepeat ? audio.play() : playNext();
+    function cycleRepeat() {
+        repeatMode = (repeatMode + 1) % 3;
+        const btn = document.getElementById('repeatBtn');
+        const badge = document.getElementById('repeatBadge');
+        btn.classList.remove('active');
+        badge.style.display = "none";
+        
+        if (repeatMode === 1) { 
+            btn.classList.add('active');
+            badge.innerText = "1";
+            badge.style.display = "block";
+        } else if (repeatMode === 2) { 
+            btn.classList.add('active');
+            badge.innerText = "ALL";
+            badge.style.display = "block";
+        }
+    }
+
+    function stopAudio() { audio.pause(); audio.currentTime = 0; updatePlayBtn(); }
     function togglePlay() { if (audio.src) { audio.paused ? audio.play() : audio.pause(); updatePlayBtn(); } }
+    
     function updatePlayBtn() {
         const btn = document.querySelector('#playBtn');
         btn.querySelector('i').className = audio.paused ? "fa-solid fa-play" : "fa-solid fa-pause";
         btn.querySelector('label').innerText = audio.paused ? "PLAY" : "PAUSE";
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = audio.paused ? "paused" : "playing";
+        }
     }
 
     function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffleBtn').classList.toggle('active', isShuffle); }
-    function toggleRepeat() { isRepeat = !isRepeat; document.getElementById('repeatBtn').classList.toggle('active', isRepeat); }
     function adjustVolume(val) { audio.volume = Math.min(1, Math.max(0, audio.volume + val)); updateStatusDisplay(); }
     function updateStatusDisplay() { const percentage = Math.round(audio.volume * 100); statusDisp.innerText = `VOL ${percentage.toString().padStart(2, '0')}%`; }
     function handleVolHover(isHovering) { if (isHovering) { updateStatusDisplay(); statusDisp.classList.add('visible'); } else { statusDisp.classList.remove('visible'); } }
@@ -427,8 +522,11 @@
         document.getElementById('timeCounter').classList.remove('visible');
         document.getElementById('trackCounter').classList.remove('visible');
         document.getElementById('progressBar').style.width = "0%";
+        document.getElementById('repeatBadge').style.display = "none";
+        repeatMode = 0;
         const art = document.getElementById('albumArt');
         art.style.backgroundImage = "none"; art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>';
+        if ('mediaSession' in navigator) navigator.mediaSession.metadata = null;
         updatePlayBtn();
     }
 </script>
