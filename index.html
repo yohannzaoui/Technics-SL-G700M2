@@ -74,7 +74,7 @@
             align-items: center;
             z-index: 20;
             transform: translateX(-5px);
-            position: relative; /* Pour positionner le logo HR par rapport à cette zone */
+            position: relative;
         }
 
         .btn-circular {
@@ -93,10 +93,9 @@
             transition: all 0.1s ease;
         }
 
-        /* Logo HR centré sous Power, aligné sur le bas de l'écran */
         .hr-logo-small {
             position: absolute;
-            bottom: 40px; /* Aligné avec le bas de la zone "écran" */
+            bottom: 40px; 
             left: 50%;
             transform: translateX(-50%);
             height: 45px;
@@ -280,14 +279,14 @@
 
 <div class="chassis">
     <div class="brand-header">
-        <img src="Technics_logo_2.png" alt="Technics" class="brand-logo">
+        <img src="img/Technics_logo_2.png" alt="Technics" class="brand-logo">
         <span>High Resolution Audio Player</span>
     </div>
 
     <div class="power-zone">
         <button class="btn-circular" id="pwrBtn" onclick="resetApplication()"><i class="fa-solid fa-power-off"></i></button>
         <div style="color:#333; font-size:10px; font-weight:300; margin-top:15px; letter-spacing:3px;">POWER</div>
-        <img src="HR_logo.png" alt="High-Res Audio" class="hr-logo-small">
+        <img src="img/HR_logo.png" alt="High-Res Audio" class="hr-logo-small">
     </div>
 
     <div class="screen-zone">
@@ -318,7 +317,7 @@
                         <h1 id="trackTitle" class="title">SYSTEM STANDBY</h1>
                         <div id="trackArtist" class="artist">NO SOURCE</div>
                         <div id="trackAlbum" class="album-name">LOAD MEDIA TO START</div>
-                        <img src="Technics-Logo-org.png" alt="Technics Logo" id="standbyLogo" class="standby-logo">
+                        <img src="img/Technics-Logo-org.png" alt="Technics Logo" id="standbyLogo" class="standby-logo">
                         <div id="timeCounter" class="time-counter">00:00 / 00:00</div>
                         <div id="trackCounter" class="track-counter" onclick="openPlaylistView()">TRACK 0 / 0</div>
                     </div>
@@ -335,7 +334,7 @@
                     <div style="margin-top:30px; color:#aaa; font-size:14px; letter-spacing:1px;">
                         LANGUAGE: <span style="color:var(--gold)">ENGLISH</span><br><br>
                         THEME: <span style="color:var(--gold)">DARK MODE</span><br><br>
-                        SYSTEM: <span style="color:var(--gold)">v5.2 FINAL</span>
+                        SYSTEM: <span style="color:var(--gold)">v5.3 FINAL</span>
                     </div>
                     <button class="back-btn-ui" onclick="hideOverlays()">BACK</button>
                 </div>
