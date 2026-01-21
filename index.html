@@ -454,6 +454,24 @@
 
     audio.volume = 0.02;
 
+    // --- Media Session API (Chrome Controls) ---
+    function updateMediaSession(metadata = {}) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: metadata.title || "SYSTEM STANDBY",
+                artist: metadata.artist || "NO SOURCE",
+                album: metadata.album || "TECHNICS PLAYER",
+                artwork: metadata.artwork ? [{ src: metadata.artwork, sizes: '512x512', type: 'image/png' }] : []
+            });
+
+            // Handlers pour les boutons de Chrome
+            navigator.mediaSession.setActionHandler('play', () => audio.play());
+            navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+            navigator.mediaSession.setActionHandler('previoustrack', () => playPrevious());
+            navigator.mediaSession.setActionHandler('nexttrack', () => playNextManual());
+        }
+    }
+
     function savePreferences() {
         localStorage.setItem('technics_prefs_v5', JSON.stringify({
             volume: audio.volume,
@@ -600,17 +618,38 @@
         jsmediatags.read(file, {
             onSuccess: (tag) => {
                 const t = tag.tags;
-                document.getElementById('trackTitle').innerText = (t.title || file.name).toUpperCase();
-                document.getElementById('trackArtist').innerText = t.artist || "UNKNOWN ARTIST";
-                document.getElementById('trackAlbum').innerText = t.album || "UNKNOWN ALBUM";
+                const title = (t.title || file.name).toUpperCase();
+                const artist = t.artist || "UNKNOWN ARTIST";
+                const album = t.album || "UNKNOWN ALBUM";
+                let artworkUrl = null;
+
+                document.getElementById('trackTitle').innerText = title;
+                document.getElementById('trackArtist').innerText = artist;
+                document.getElementById('trackAlbum').innerText = album;
+
                 const art = document.getElementById('albumArt');
                 if (t.picture) {
                     const { data, format } = t.picture;
                     let b64 = "";
                     for (let i = 0; i < data.length; i++) b64 += String.fromCharCode(data[i]);
-                    art.style.backgroundImage = `url(data:${format};base64,${window.btoa(b64)})`;
+                    artworkUrl = `data:${format};base64,${window.btoa(b64)}`;
+                    art.style.backgroundImage = `url(${artworkUrl})`;
                     art.innerHTML = "";
-                } else { art.style.backgroundImage = "none"; art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>'; }
+                } else { 
+                    art.style.backgroundImage = "none"; 
+                    art.innerHTML = '<i class="fa-solid fa-compact-disc"></i>'; 
+                }
+
+                // Sync avec Chrome
+                updateMediaSession({
+                    title: title,
+                    artist: artist,
+                    album: album,
+                    artwork: artworkUrl
+                });
+            },
+            onError: () => {
+                updateMediaSession({ title: file.name.toUpperCase() });
             }
         });
 
@@ -631,6 +670,10 @@
         btn.querySelector('i').className = audio.paused ? "fa-solid fa-play" : "fa-solid fa-pause";
         btn.querySelector('label').innerText = audio.paused ? "PLAY" : "PAUSE";
         pauseInd.style.display = (audio.paused && audio.src) ? "block" : "none";
+        // Update Chrome state
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = audio.paused ? "paused" : "playing";
+        }
     }
 
     function playNextManual() {
@@ -704,7 +747,14 @@
         muteInd.style.display = audio.muted ? "block" : "none";
     }
 
-    function stopAudio() { audio.pause(); audio.currentTime = 0; updatePlayBtn(); pauseInd.style.display = "none"; }
+    function stopAudio() { 
+        audio.pause(); 
+        audio.currentTime = 0; 
+        updatePlayBtn(); 
+        pauseInd.style.display = "none";
+        if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "none";
+    }
+
     function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffleBtn').classList.toggle('active', isShuffle); }
     
     function cycleRepeat() {
