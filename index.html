@@ -129,8 +129,45 @@
             flex-direction: column;
             box-sizing: border-box;
             overflow: hidden;
-            box-shadow: inset 0 0 100px #000;
+            box-shadow: inset 0 0 100px #000, inset 0 0 15px rgba(255,255,255,0.05);
         }
+
+       /* GLASS EFFECT OVERLAY - VERSION MARQUÉE */
+.screen::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Mélange de reflets : un grand balayage blanc et un dégradé de profondeur */
+    background: 
+        linear-gradient(110deg, 
+            rgba(255, 255, 255, 0.15) 0%, 
+            rgba(255, 255, 255, 0.05) 15%, 
+            rgba(255, 255, 255, 0) 45%, 
+            rgba(255, 255, 255, 0.08) 85%,
+            rgba(255, 255, 255, 0.2) 100%
+        ),
+        linear-gradient(180deg, 
+            rgba(255, 255, 255, 0.05) 0%, 
+            rgba(0, 0, 0, 0) 50%, 
+            rgba(0, 0, 0, 0.2) 100%
+        );
+    pointer-events: none;
+    z-index: 150;
+    /* Simulation de la poussière/texture très légère sur le verre */
+    opacity: 0.9;
+}
+
+/* On accentue aussi le cadre interne pour l'effet d'épaisseur */
+.screen {
+    box-shadow: 
+        inset 0 0 120px rgba(0,0,0,0.9),
+        inset 0 0 40px rgba(0,0,0,1),
+        inset 0 2px 10px rgba(255,255,255,0.2), /* Reflet supérieur de la vitre */
+        inset 0 -2px 10px rgba(0,0,0,0.5);
+}
 
         .status-display {
             position: absolute;
@@ -178,7 +215,7 @@
             display: none;
             flex-direction: column;
             gap: 20px;
-            z-index: 100;
+            z-index: 200; /* Devant l'effet vitre pour rester cliquable */
             box-shadow: 0 10px 40px rgba(0,0,0,0.9);
         }
         
@@ -264,9 +301,9 @@
         .control-btn {
             background: none; border: none; color: var(--dim-text); cursor: pointer;
             display: flex; flex-direction: column; align-items: center;
-            justify-content: flex-end; /* Alignement vers le bas pour compenser les labels */
+            justify-content: flex-end;
             transition: all 0.3s ease; width: 70px; 
-            height: 60px; /* Hauteur fixe pour aligner les boutons */
+            height: 60px;
             opacity: var(--ui-off-opacity);
             position: relative;
             user-select: none;
@@ -281,10 +318,9 @@
         .ui-on { opacity: 1 !important; color: var(--active-text) !important; pointer-events: auto !important; }
         .control-btn.active { color: var(--gold) !important; opacity: 1 !important; }
 
-        /* REPEAT INDICATORS - FIXED & RAISED */
         .repeat-mode-label {
             position: absolute; 
-            top: 3px; /* Remonté pour éviter le chevauchement */
+            top: 3px; 
             left: 50%;
             transform: translateX(-50%);
             font-size: 10px; 
@@ -428,6 +464,7 @@
 <audio id="audioPlayer" crossorigin="anonymous"></audio>
 
 <script>
+    // ... JavaScript content exactly same as your stable version ...
     const audio = document.getElementById('audioPlayer');
     const fileInput = document.getElementById('fileInput');
     const statusDisp = document.getElementById('statusDisplay');
@@ -541,13 +578,19 @@
         if (!analyser) return;
         const data = new Uint8Array(analyser.frequencyBinCount);
         function update() {
-            if (isVuActive && !audio.paused && playlist.length > 0) {
+            // AJOUT DE LA CONDITION !audio.muted
+            if (isVuActive && !audio.paused && !audio.muted && playlist.length > 0) {
                 analyser.getByteFrequencyData(data);
                 let sum = 0; for(let i=0; i<data.length; i++) sum += data[i];
                 let level = Math.min(100, ( (sum / data.length) / 128) * 100 * vuSensitivity);
                 updateVuBars(level, 'vuLBar');
+                // Le canal R suit le canal L avec une petite variation organique
                 updateVuBars(Math.min(100, (level * 0.95 + Math.random() * 5)), 'vuRBar');
-            } else { updateVuBars(0, 'vuLBar'); updateVuBars(0, 'vuRBar'); }
+            } else { 
+                // Si en MUTE ou PAUSE, on remet tout à zéro
+                updateVuBars(0, 'vuLBar'); 
+                updateVuBars(0, 'vuRBar'); 
+            }
             requestAnimationFrame(update);
         }
         update();
@@ -656,11 +699,9 @@
         const btn = document.getElementById('repeatBtn');
         const r1 = document.getElementById('rep1');
         const rAll = document.getElementById('repAll');
-        
         btn.classList.toggle('active', repeatMode > 0);
         r1.classList.toggle('visible', repeatMode === 1);
         rAll.classList.toggle('visible', repeatMode === 2);
-        
         updateStatus(repeatMode === 0 ? "REPEAT OFF" : (repeatMode === 1 ? "REPEAT ONE" : "REPEAT ALL")); 
     }
 
