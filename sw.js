@@ -1,4 +1,4 @@
-const CACHE_NAME = 'technics-player-v5';
+const CACHE_NAME = 'Technics Touchscreen';
 const ASSETS = [
   './',
   './index.html',
