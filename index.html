@@ -131,55 +131,25 @@
             flex-direction: column;
             box-sizing: border-box;
             overflow: hidden;
-            box-shadow: inset 0 0 100px #000, inset 0 0 15px rgba(255,255,255,0.05);
+            box-shadow: inset 0 0 120px rgba(0,0,0,0.9), inset 0 0 40px rgba(0,0,0,1), inset 0 2px 10px rgba(255,255,255,0.2), inset 0 -2px 10px rgba(0,0,0,0.5);
         }
 
-       /* GLASS EFFECT OVERLAY - VERSION MARQUÉE */
-.screen::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    /* Mélange de reflets : un grand balayage blanc et un dégradé de profondeur */
-    background: 
-        linear-gradient(110deg, 
-            rgba(255, 255, 255, 0.15) 0%, 
-            rgba(255, 255, 255, 0.05) 15%, 
-            rgba(255, 255, 255, 0) 45%, 
-            rgba(255, 255, 255, 0.08) 85%,
-            rgba(255, 255, 255, 0.2) 100%
-        ),
-        linear-gradient(180deg, 
-            rgba(255, 255, 255, 0.05) 0%, 
-            rgba(0, 0, 0, 0) 50%, 
-            rgba(0, 0, 0, 0.2) 100%
-        );
-    pointer-events: none;
-    z-index: 150;
-    /* Simulation de la poussière/texture très légère sur le verre */
-    opacity: 0.9;
-}
-
-/* On accentue aussi le cadre interne pour l'effet d'épaisseur */
-.screen {
-    box-shadow: 
-        inset 0 0 120px rgba(0,0,0,0.9),
-        inset 0 0 40px rgba(0,0,0,1),
-        inset 0 2px 10px rgba(255,255,255,0.2), /* Reflet supérieur de la vitre */
-        inset 0 -2px 10px rgba(0,0,0,0.5);
-}
+        .screen::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(110deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 15%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.08) 85%, rgba(255, 255, 255, 0.2) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.2) 100%);
+            pointer-events: none;
+            z-index: 150;
+            opacity: 0.9;
+        }
 
         .status-display {
             position: absolute;
-            top: 60px;
-            right: 30px;
+            top: 60px; right: 30px;
             color: var(--gold);
             font-family: 'Inter', sans-serif;
-            font-size: 18px;
-            font-weight: 300;
-            letter-spacing: 4px;
+            font-size: 18px; font-weight: 300; letter-spacing: 4px;
             text-transform: uppercase;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -193,8 +163,7 @@
             top: 20px;
             color: var(--gold);
             font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 14px; font-weight: 600;
             letter-spacing: 3px;
             text-transform: uppercase;
             display: none;
@@ -207,8 +176,7 @@
 
         .tone-menu {
             position: absolute;
-            bottom: 95px;
-            right: 30px;
+            bottom: 95px; right: 30px;
             width: 380px;
             background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(15px);
@@ -217,32 +185,24 @@
             display: none;
             flex-direction: column;
             gap: 20px;
-            z-index: 200; /* Devant l'effet vitre pour rester cliquable */
+            z-index: 200;
             box-shadow: 0 10px 40px rgba(0,0,0,0.9);
         }
         
         #settingsMenu { width: 500px; }
-
         .tone-menu.active { display: flex; }
         .tone-menu h3 { 
-            color: var(--gold); 
-            font-size: 12px; 
-            letter-spacing: 4px; 
-            margin: 0; 
-            text-transform: uppercase;
-            text-align: center;
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
+            color: var(--gold); font-size: 12px; letter-spacing: 4px; margin: 0; 
+            text-transform: uppercase; text-align: center; border-bottom: 1px solid #222; padding-bottom: 10px;
         }
 
         .tone-row { display: flex; justify-content: flex-start; align-items: center; gap: 12px; }
-        .tone-label { font-size: 10px; letter-spacing: 2px; color: #888; width: 140px; flex-shrink: 0; white-space: nowrap; text-transform: uppercase; }
+        .tone-label { font-size: 10px; letter-spacing: 2px; color: #888; width: 140px; flex-shrink: 0; text-transform: uppercase; }
 
         .btn-settings-wide, .tone-btn-small {
             background: #1a1a1a; border: 1px solid #333; color: var(--active-text);
             padding: 10px 0; cursor: pointer; font-size: 14px; font-weight: bold; flex: 1;
-            transition: all 0.2s; min-height: 40px;
-            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; min-height: 40px; display: flex; align-items: center; justify-content: center;
             text-transform: uppercase; letter-spacing: 1px;
         }
         .btn-settings-wide:hover, .tone-btn-small:hover { border-color: var(--gold); color: var(--gold); }
@@ -267,13 +227,7 @@
         .artist { font-size: 20px; color: var(--gold); margin: 8px 0; font-weight: 300; text-transform: uppercase; letter-spacing: 4px; }
         .album-name { color: #ffffff; font-size: 18px; letter-spacing: 2px; font-weight: 300; margin-bottom: 10px; }
 
-        .vu-container {
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 25px;
-            width: 400px;
-        }
+        .vu-container { display: none; flex-direction: column; gap: 12px; margin-top: 25px; width: 400px; }
         .vu-container.active { display: flex; }
         .vu-meter-row { display: flex; align-items: center; gap: 15px; }
         .vu-label { color: #ffffff; font-size: 16px; font-weight: bold; width: 15px; }
@@ -294,22 +248,16 @@
         .visible { opacity: 1 !important; }
 
         .controls-bar {
-            height: 85px;
-            background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 100%);
+            height: 85px; background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 100%);
             display: flex; align-items: center; justify-content: center; gap: 40px;
             border-top: 1px solid #1a1a1a; z-index: 50; flex-shrink: 0;
         }
 
         .control-btn {
             background: none; border: none; color: var(--dim-text); cursor: pointer;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: flex-end;
-            transition: all 0.3s ease; width: 70px; 
-            height: 60px;
-            opacity: var(--ui-off-opacity);
-            position: relative;
-            user-select: none;
-            pointer-events: none;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+            transition: all 0.3s ease; width: 70px; height: 60px;
+            opacity: var(--ui-off-opacity); position: relative; user-select: none; pointer-events: none;
         }
 
         .control-btn.btn-load { opacity: 1 !important; color: var(--active-text) !important; pointer-events: auto !important; }
@@ -321,15 +269,8 @@
         .control-btn.active { color: var(--gold) !important; opacity: 1 !important; }
 
         .repeat-mode-label {
-            position: absolute; 
-            top: 3px; 
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10px; 
-            font-weight: 900;
-            color: var(--gold); 
-            display: none;
-            letter-spacing: 0px;
+            position: absolute; top: 3px; left: 50%; transform: translateX(-50%);
+            font-size: 10px; font-weight: 900; color: var(--gold); display: none; letter-spacing: 0px;
         }
         .repeat-mode-label.visible { display: block; }
 
@@ -345,10 +286,7 @@
         .playlist-item-mini.active { color: var(--gold); border-left: 2px solid var(--gold); background: #050505; }
 
         #fileInput { display: none; }
-
-        input[type="color"] {
-            background: #1a1a1a; border: 1px solid #333; height: 40px; cursor: pointer; width: 100%; padding: 2px; flex: 1;
-        }
+        input[type="color"] { background: #1a1a1a; border: 1px solid #333; height: 40px; cursor: pointer; width: 100%; padding: 2px; flex: 1; }
     </style>
 </head>
 <body>
@@ -397,15 +335,15 @@
                 </div>
                 <div class="tone-row">
                     <span class="tone-label">APP BG COLOR</span>
-                    <input type="color" id="appBgColorPicker" value="#050505">
+                    <input type="color" id="appBgColorPicker" value="#050505" onchange="updateAppBackground(this.value)">
                 </div>
                 <div class="tone-row">
                     <span class="tone-label">CHASSIS COLOR</span>
-                    <input type="color" id="chassisColorPicker" value="#d1d1d1">
+                    <input type="color" id="chassisColorPicker" value="#d1d1d1" onchange="updateChassisColor(this.value)">
                 </div>
                 <div class="tone-row">
                     <span class="tone-label">DISPLAY BG</span>
-                    <input type="color" id="bgColorPicker" value="#000000">
+                    <input type="color" id="bgColorPicker" value="#000000" onchange="updateDisplayBg(this.value)">
                 </div>
                 <button class="tone-btn-small" style="margin-top: 10px; background: transparent; border-color: #444;" onclick="hideAllMenus()">CLOSE</button>
             </div>
@@ -439,10 +377,10 @@
             <div class="controls-bar">
                 <button class="control-btn btn-load" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-eject"></i><label>LOAD</label></button>
                 <button class="control-btn media-ctrl" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-play"></i><label>PLAY</label></button>
-                <button class="control-btn media-ctrl" onclick="playPrevious()"><i class="fa-solid fa-backward-step"></i><label>PREV</label></button>
-                <button class="control-btn media-ctrl" onclick="playNextManual()"><i class="fa-solid fa-forward-step"></i><label>NEXT</label></button>
+                <button class="control-btn media-ctrl" id="prevBtn"><i class="fa-solid fa-backward-step"></i><label>PREV</label></button>
+                <button class="control-btn media-ctrl" id="nextBtn"><i class="fa-solid fa-forward-step"></i><label>NEXT</label></button>
                 <button class="control-btn media-ctrl" onclick="stopAudio()"><i class="fa-solid fa-stop"></i><label>STOP</label></button>
-                <button class="control-btn media-ctrl" id="shuffleBtn" onclick="toggleShuffle()"><i class="fa-solid fa-shuffle"></i><label>SHUFFLE</label></button>
+                <button class="control-btn media-ctrl" id="shuffleBtn" onclick="toggleShuffle()"><i class="fa-solid fa-shuffle"></i><label>RANDOM</label></button>
                 
                 <button class="control-btn media-ctrl" id="repeatBtn" onclick="cycleRepeat()">
                     <span id="rep1" class="repeat-mode-label">1</span>
@@ -451,9 +389,9 @@
                     <label>REPEAT</label>
                 </button>
 
-                <button class="control-btn media-ctrl" onmouseenter="handleVolHover(true)" onmouseleave="handleVolHover(false)" onmousedown="startVolumeChange(-0.01)" onmouseup="stopVolumeChange()"><i class="fa-solid fa-volume-low"></i><label>VOL-</label></button>
+                <button class="control-btn media-ctrl" id="volDownBtn"><i class="fa-solid fa-volume-low"></i><label>VOL-</label></button>
                 <button class="control-btn media-ctrl" id="muteBtn" onclick="toggleMute()"><i class="fa-solid fa-volume-xmark"></i><label>MUTE</label></button>
-                <button class="control-btn media-ctrl" onmouseenter="handleVolHover(true)" onmouseleave="handleVolHover(false)" onmousedown="startVolumeChange(0.01)" onmouseup="stopVolumeChange()"><i class="fa-solid fa-volume-high"></i><label>VOL+</label></button>
+                <button class="control-btn media-ctrl" id="volUpBtn"><i class="fa-solid fa-volume-high"></i><label>VOL+</label></button>
                 <button class="control-btn media-ctrl" id="toneBtn" onclick="toggleTone()"><i class="fa-solid fa-sliders"></i><label>TONE</label></button>
                 <button class="control-btn media-ctrl" id="settingsBtn" onclick="toggleSettings()"><i class="fa-solid fa-gear"></i><label>SETTINGS</label></button>
             </div>
@@ -466,7 +404,6 @@
 <audio id="audioPlayer" crossorigin="anonymous"></audio>
 
 <script>
-    // ... JavaScript content exactly same as your stable version ...
     const audio = document.getElementById('audioPlayer');
     const fileInput = document.getElementById('fileInput');
     const statusDisp = document.getElementById('statusDisplay');
@@ -489,7 +426,7 @@
     let audioCtx, source, bassFilter, trebleFilter, analyser;
     let bassGain = 0, trebleGain = 0, isVuActive = false, vuSensitivity = 1.0;
     let playlist = [], currentIndex = 0;
-    let isShuffle = false, repeatMode = 0, volInterval = null, isHoveringVol = false;
+    let isShuffle = false, repeatMode = 0, volInterval = null, seekInterval = null;
 
     function createVuSegments(containerId) {
         const container = document.getElementById(containerId);
@@ -504,6 +441,13 @@
     createVuSegments('vuRBar');
 
     audio.volume = 0.02;
+
+    function updateStatus(text) {
+        statusDisp.innerText = text;
+        statusDisp.classList.add('visible');
+        clearTimeout(window.statusTimer);
+        window.statusTimer = setTimeout(() => statusDisp.classList.remove('visible'), 2000);
+    }
 
     function savePreferences() {
         localStorage.setItem('technics_prefs_v11', JSON.stringify({
@@ -525,20 +469,19 @@
             if (p.displayBg) { bgColorPicker.value = p.displayBg; updateDisplayBg(p.displayBg); }
             if (p.chassisColor) { chassisColorPicker.value = p.chassisColor; updateChassisColor(p.chassisColor); }
             if (p.appBackground) { appBgColorPicker.value = p.appBackground; updateAppBackground(p.appBackground); }
-            if (p.vuActive) { isVuActive = true; vuToggleBtn.innerText = "ON"; vuToggleBtn.classList.add('active'); vuContainer.classList.remove('active'); }
         }
     }
 
-    function updateDisplayBg(color) { mainScreen.style.backgroundColor = color; }
-    function updateChassisColor(color) { document.documentElement.style.setProperty('--chassis-base', color); }
-    function updateAppBackground(color) { document.body.style.backgroundColor = color; }
+    function updateDisplayBg(color) { mainScreen.style.backgroundColor = color; savePreferences(); }
+    function updateChassisColor(color) { document.documentElement.style.setProperty('--chassis-base', color); savePreferences(); }
+    function updateAppBackground(color) { document.body.style.backgroundColor = color; savePreferences(); }
 
     function toggleVuDisplay() {
         isVuActive = !isVuActive;
-        if (isVuActive && !audio.paused && playlist.length > 0) vuContainer.classList.add('active');
-        else vuContainer.classList.remove('active');
         vuToggleBtn.innerText = isVuActive ? "ON" : "OFF";
         vuToggleBtn.classList.toggle('active', isVuActive);
+        if (isVuActive && !audio.paused && playlist.length > 0) vuContainer.classList.add('active');
+        else vuContainer.classList.remove('active');
         if (isVuActive) initAudioContext();
         savePreferences();
     }
@@ -563,6 +506,20 @@
         }
     }
 
+    function adjustTone(type, amount) {
+        initAudioContext();
+        if (type === 'bass') {
+            bassGain = Math.min(12, Math.max(-12, bassGain + amount));
+            if (bassFilter) bassFilter.gain.value = bassGain;
+            updateStatus(`BASS ${bassGain > 0 ? '+' : ''}${bassGain} dB`);
+        } else if (type === 'treble') {
+            trebleGain = Math.min(12, Math.max(-12, trebleGain + amount));
+            if (trebleFilter) trebleFilter.gain.value = trebleGain;
+            updateStatus(`TREBLE ${trebleGain > 0 ? '+' : ''}${trebleGain} dB`);
+        }
+        savePreferences();
+    }
+
     function updateVuBars(level, containerId) {
         const segments = document.getElementById(containerId).getElementsByClassName('vu-segment');
         const numOn = Math.floor((level / 100) * SEGMENT_COUNT);
@@ -580,16 +537,13 @@
         if (!analyser) return;
         const data = new Uint8Array(analyser.frequencyBinCount);
         function update() {
-            // AJOUT DE LA CONDITION !audio.muted
             if (isVuActive && !audio.paused && !audio.muted && playlist.length > 0) {
                 analyser.getByteFrequencyData(data);
                 let sum = 0; for(let i=0; i<data.length; i++) sum += data[i];
                 let level = Math.min(100, ( (sum / data.length) / 128) * 100 * vuSensitivity);
                 updateVuBars(level, 'vuLBar');
-                // Le canal R suit le canal L avec une petite variation organique
                 updateVuBars(Math.min(100, (level * 0.95 + Math.random() * 5)), 'vuRBar');
             } else { 
-                // Si en MUTE ou PAUSE, on remet tout à zéro
                 updateVuBars(0, 'vuLBar'); 
                 updateVuBars(0, 'vuRBar'); 
             }
@@ -620,7 +574,7 @@
             }
         });
         audio.src = URL.createObjectURL(file);
-        if (autoPlay) { initAudioContext(); audio.play().then(() => { updatePlayBtn(); if (isVuActive) vuContainer.classList.add('active'); }); }
+        if (autoPlay) { initAudioContext(); audio.play().then(() => { updatePlayBtn(); if (isVuActive) vuContainer.classList.add('active'); pauseInd.style.display = 'none'; }); }
     }
 
     fileInput.addEventListener('change', (e) => {
@@ -631,13 +585,113 @@
         document.getElementById('timeCounter').classList.add('visible');
         document.getElementById('trackCounter').classList.add('visible');
         standbyLogo.style.display = "none";
-        loadTrack(0, true);
+        loadTrack(playlist.length - Array.from(e.target.files).length, true);
     });
 
-    function hideAllMenus() {
-        [toneMenu, settingsMenu, playlistMenu].forEach(m => m.classList.remove('active'));
-        [document.getElementById('toneBtn'), document.getElementById('settingsBtn')].forEach(b => b.classList.remove('active'));
+    // CONTROLES NEXT / PREV / SEEK
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+
+    function playNext() {
+        if (playlist.length === 0) return;
+        if (isShuffle) { loadTrack(Math.floor(Math.random() * playlist.length)); }
+        else { currentIndex = (currentIndex + 1) % playlist.length; loadTrack(currentIndex); }
     }
+
+    function playPrevious() {
+        if (playlist.length === 0) return;
+        currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+        loadTrack(currentIndex);
+    }
+
+    // Gestion Long Press Next (Avance Rapide)
+    nextBtn.addEventListener('mousedown', () => {
+        if (!audio.src) return;
+        let isLongPress = false;
+        const timer = setTimeout(() => {
+            isLongPress = true;
+            seekInterval = setInterval(() => {
+                audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+                updateStatus("SEEK >>");
+            }, 100);
+        }, 500);
+
+        const up = () => {
+            clearTimeout(timer);
+            clearInterval(seekInterval);
+            if (!isLongPress) playNext();
+            window.removeEventListener('mouseup', up);
+        };
+        window.addEventListener('mouseup', up);
+    });
+
+    // Gestion Long Press Prev (Retour Rapide)
+    prevBtn.addEventListener('mousedown', () => {
+        if (!audio.src) return;
+        let isLongPress = false;
+        const timer = setTimeout(() => {
+            isLongPress = true;
+            seekInterval = setInterval(() => {
+                audio.currentTime = Math.max(0, audio.currentTime - 5);
+                updateStatus("<< SEEK");
+            }, 100);
+        }, 500);
+
+        const up = () => {
+            clearTimeout(timer);
+            clearInterval(seekInterval);
+            if (!isLongPress) playPrevious();
+            window.removeEventListener('mouseup', up);
+        };
+        window.addEventListener('mouseup', up);
+    });
+
+    // VOLUME CONTROLS
+    const volUpBtn = document.getElementById('volUpBtn');
+    const volDownBtn = document.getElementById('volDownBtn');
+
+    function startVolumeChange(val) {
+        volInterval = setInterval(() => {
+            audio.volume = Math.min(1, Math.max(0, audio.volume + val));
+            updateStatus(`VOL ${Math.round(audio.volume * 100)}%`);
+        }, 50);
+    }
+    function stopVolumeChange() { clearInterval(volInterval); savePreferences(); }
+
+    volUpBtn.addEventListener('mousedown', () => startVolumeChange(0.01));
+    volUpBtn.addEventListener('mouseup', stopVolumeChange);
+    volDownBtn.addEventListener('mousedown', () => startVolumeChange(-0.01));
+    volDownBtn.addEventListener('mouseup', stopVolumeChange);
+
+    function togglePlay() { 
+        if (!audio.src) return; 
+        initAudioContext(); 
+        if (audio.paused) { audio.play(); if (isVuActive) vuContainer.classList.add('active'); pauseInd.style.display = 'none'; } 
+        else { audio.pause(); vuContainer.classList.remove('active'); pauseInd.style.display = 'block'; }
+        updatePlayBtn();
+    }
+
+    function updatePlayBtn() {
+        const icon = document.getElementById('playBtn').querySelector('i');
+        icon.className = audio.paused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+    }
+
+    function stopAudio() { audio.pause(); audio.currentTime = 0; vuContainer.classList.remove('active'); updatePlayBtn(); pauseInd.style.display = 'none'; }
+
+    audio.onended = () => {
+        if (repeatMode === 1) { audio.play(); }
+        else if (repeatMode === 2 || currentIndex < playlist.length - 1) { playNext(); }
+    };
+
+    function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffleBtn').classList.toggle('active', isShuffle); }
+    function cycleRepeat() {
+        repeatMode = (repeatMode + 1) % 3;
+        document.getElementById('rep1').classList.toggle('visible', repeatMode === 1);
+        document.getElementById('repAll').classList.toggle('visible', repeatMode === 2);
+        document.getElementById('repeatBtn').classList.toggle('active', repeatMode > 0);
+    }
+
+    function toggleMute() { audio.muted = !audio.muted; muteInd.style.display = audio.muted ? 'block' : 'none'; document.getElementById('muteBtn').classList.toggle('active', audio.muted); }
 
     function toggleTone() {
         const active = toneMenu.classList.contains('active');
@@ -669,56 +723,35 @@
         });
     }
 
-    function togglePlay() { 
-        if (!audio.src) return; 
-        initAudioContext(); 
-        if (audio.paused) { audio.play(); if (isVuActive) vuContainer.classList.add('active'); } 
-        else { audio.pause(); vuContainer.classList.remove('active'); }
-        updatePlayBtn(); 
+    function hideAllMenus() {
+        [toneMenu, settingsMenu, playlistMenu].forEach(m => m.classList.remove('active'));
+        [document.getElementById('toneBtn'), document.getElementById('settingsBtn')].forEach(b => b.classList.remove('active'));
     }
 
-    function updatePlayBtn() { const btn = document.querySelector('#playBtn'); btn.querySelector('i').className = audio.paused ? "fa-solid fa-play" : "fa-solid fa-pause"; btn.querySelector('label').innerText = audio.paused ? "PLAY" : "PAUSE"; pauseInd.style.display = (audio.paused && audio.src) ? "block" : "none"; }
-    function playNextManual() { currentIndex = (currentIndex + 1) % playlist.length; loadTrack(currentIndex, true); }
-    function playPrevious() { currentIndex = (currentIndex - 1 + playlist.length) % playlist.length; loadTrack(currentIndex, true); }
-    function stopAudio() { audio.pause(); audio.currentTime = 0; vuContainer.classList.remove('active'); updatePlayBtn(); }
-    function toggleMute() { audio.muted = !audio.muted; document.getElementById('muteBtn').classList.toggle('active', audio.muted); muteInd.style.display = audio.muted ? "block" : "none"; }
-    
-    function updateStatus(text, persistent = false) { 
-        statusDisp.innerText = text; statusDisp.classList.add('visible'); 
-        clearTimeout(window.stT); 
-        if (!persistent && !isHoveringVol) window.stT = setTimeout(() => statusDisp.classList.remove('visible'), 2000); 
-    }
-    
-    function handleVolHover(isH) { isHoveringVol = isH; if (isH) updateStatus(`VOL ${Math.round(audio.volume * 100).toString().padStart(2, '0')}%`, true); else if (!volInterval) statusDisp.classList.remove('visible'); }
-    function startVolumeChange(v) { adjustVolume(v); volInterval = setInterval(() => adjustVolume(v), 50); }
-    function stopVolumeChange() { clearInterval(volInterval); volInterval = null; savePreferences(); if (!isHoveringVol) window.stT = setTimeout(() => statusDisp.classList.remove('visible'), 1500); }
-    function adjustVolume(v) { audio.volume = Math.min(1, Math.max(0, audio.volume + v)); updateStatus(`VOL ${Math.round(audio.volume * 100).toString().padStart(2, '0')}%`, true); }
-    
-    function adjustTone(type, val) { initAudioContext(); if (type === 'bass') { bassGain = Math.min(12, Math.max(-12, bassGain + val)); bassFilter.gain.value = bassGain; } else { trebleGain = Math.min(12, Math.max(-12, trebleGain + val)); trebleFilter.gain.value = trebleGain; } updateStatus(`${type.toUpperCase()} ${bassGain}dB`); savePreferences(); }
-    
-    function cycleRepeat() { 
-        repeatMode = (repeatMode + 1) % 3; 
-        const btn = document.getElementById('repeatBtn');
-        const r1 = document.getElementById('rep1');
-        const rAll = document.getElementById('repAll');
-        btn.classList.toggle('active', repeatMode > 0);
-        r1.classList.toggle('visible', repeatMode === 1);
-        rAll.classList.toggle('visible', repeatMode === 2);
-        updateStatus(repeatMode === 0 ? "REPEAT OFF" : (repeatMode === 1 ? "REPEAT ONE" : "REPEAT ALL")); 
+    audio.ontimeupdate = () => {
+        const p = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = p + "%";
+        const cur = formatTime(audio.currentTime);
+        const dur = formatTime(audio.duration || 0);
+        document.getElementById('timeCounter').innerText = `${cur} / ${dur}`;
+    };
+
+    function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
-    function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffleBtn').classList.toggle('active', isShuffle); updateStatus(isShuffle ? "SHUFFLE ON" : "SHUFFLE OFF"); }
-    function fmt(s) { if (isNaN(s)) return "00:00"; const m = Math.floor(s/60); const sec = Math.floor(s%60); return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; }
-    function resetApplication() { localStorage.removeItem('technics_prefs_v11'); location.reload(); }
+    document.getElementById('progressContainer').onclick = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const p = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = p * audio.duration;
+    };
 
-    audio.addEventListener('timeupdate', () => { document.getElementById('timeCounter').innerText = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`; progressBar.style.width = ((audio.currentTime / audio.duration) * 100) + '%'; });
-    audio.addEventListener('ended', () => { if (repeatMode === 1) { audio.currentTime = 0; audio.play(); } else if (repeatMode === 2 || currentIndex < playlist.length - 1) playNextManual(); else stopAudio(); });
-    
-    bgColorPicker.addEventListener('input', (e) => { updateDisplayBg(e.target.value); savePreferences(); });
-    chassisColorPicker.addEventListener('input', (e) => { updateChassisColor(e.target.value); savePreferences(); });
-    appBgColorPicker.addEventListener('input', (e) => { updateAppBackground(e.target.value); savePreferences(); });
+    function resetApplication() { location.reload(); }
 
-    window.addEventListener('DOMContentLoaded', loadPreferences);
+    window.onload = loadPreferences;
 </script>
+
 </body>
 </html>
